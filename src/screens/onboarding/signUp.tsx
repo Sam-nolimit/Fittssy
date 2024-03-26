@@ -158,7 +158,7 @@ const SignUp = () => {
         <View style={styles.bottomContainer}>
           <TouchableOpacity onPress={handleSignInPress} activeOpacity={1}>
             <Text style={styles.optionText}>
-              Already have an account?{' '}
+              Already have an account?
               <Text style={styles.signInText}>Sign in</Text>
             </Text>
           </TouchableOpacity>
