@@ -22,9 +22,9 @@ const Tab = createBottomTabNavigator();
 const homeIcon = require('../../assets/icons/home.png');
 const homeIcon2 = require('../../assets/icons/home2.png');
 const myPlansIcon = require('../../assets/icons/dumbbell.png');
-const myPlansIcon2 = require('../../assets/icons/dumbbell.png');
+const myPlansIcon2 = require('../../assets/icons/dumbbell2.png');
 const ProgressIcon = require('../../assets/icons/calender-fill.png');
-const ProgressIcon2 = require('../../assets/icons/calender-fill.png');
+const ProgressIcon2 = require('../../assets/icons/calendar-fill2.png');
 const InsightIcon = require('../../assets/icons/insight.png');
 const InsightIcon2 = require('../../assets/icons/insight.png');
 const profileIcon = require('../../assets/icons/profile.png');
@@ -41,7 +41,7 @@ export default function MyTabs() {
           } else if (route.name === 'My Plans') {
             iconName = focused ? myPlansIcon2 : myPlansIcon;
           } else if (route.name === 'Progress') {
-            iconName = focused ? ProgressIcon2 : ProgressIcon;
+            iconName = focused ? ProgressIcon : ProgressIcon2;
           } else if (route.name === 'Insight') {
             iconName = focused ? InsightIcon2 : InsightIcon;
           } else if (route.name === 'Profile') {
