@@ -1,105 +1,225 @@
-/* eslint-disable prettier/prettier */
+import React, {useState, useContext, useEffect} from 'react';
 import {
-  Image,
-  StyleSheet,
+  View,
   Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useContext} from 'react';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import BottomComponent from '../../components/bottom';
 import {useNavigation} from '@react-navigation/native';
 import CustomText from '../../components/text';
+import BottomComponent from '../../components/bottom';
 import {AuthContext} from '../../context/authContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = () => {
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
+  const [isUsernameFocused, setIsUsernameFocused] = useState(false); // Separate focus state for username
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [usernameError, setUsernameError] = useState(false);
+  const [formErrors, setFormErrors] = useState({username: '', password: ''});
+  const [passwordError, setPasswordError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isSignInDisabled, setIsSignInDisabled] = useState(true);
   const navigation = useNavigation();
 
   const {login} = useContext(AuthContext);
 
-  const handlePress = () => {
-    login();
-    // navigation.navigate('Dashboard');
+  const handlePress = async () => {
+    setUsernameError(false);
+    setPasswordError(false);
+
+    const isValid = validateForm();
+    if (isValid) {
+      setLoading(true);
+      try {
+        await AsyncStorage.setItem('username', username);
+        await AsyncStorage.setItem('password', password);
+
+        setTimeout(() => {
+          setLoading(false);
+          login();
+        }, 3000);
+      } catch (error) {
+        console.log('Error saving credentials:', error);
+        setLoading(false);
+      }
+    }
   };
-  
-  const handleSignInPress = () => {
-    navigation.navigate('SignUp');
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!username.trim()) {
+      errors.username = 'Email Address is required';
+      setUsernameError(true);
+    } else if (!isValidEmail(username)) {
+      errors.username = 'Invalid Email Address';
+      setUsernameError(true);
+    } else {
+      setUsernameError(false);
+    }
+
+    if (!password.trim()) {
+      errors.password = 'Password is required';
+      setPasswordError(true);
+    } else if (password.length < 6 || password.length > 12) {
+      errors.password = 'Password must be between 6 to 12 characters';
+      setPasswordError(true);
+    } else if (!containsNumberAndSpecialChar(password)) {
+      errors.password =
+        'Password must contain at least one number and one special character';
+      setPasswordError(true);
+    } else {
+      setPasswordError(false);
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
+
+  const isValidEmail = email => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const containsNumberAndSpecialChar = password => {
+    return (
+      /[0-9]/.test(password) &&
+      /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
+    );
+  };
+
+  const handleUsernameChange = username => {
+    setUserName(username);
+    if (username.trim() && isValidEmail(username)) {
+      setUsernameError(false);
+    } else {
+      setUsernameError(true);
+    }
+  };
+
+  const handlePasswordChange = value => {
+    setPassword(value);
+    if (!value.trim()) {
+      setPasswordError(true);
+    } else if (value.length < 6 || value.length > 12) {
+      setPasswordError(true);
+    } else if (!containsNumberAndSpecialChar(value)) {
+      setPasswordError(true);
+    } else {
+      setPasswordError(false);
+    }
+  };
+
   const handleForgotPasswordPress = () => {
     navigation.navigate('ForgotPassword');
   };
-  const togglePasswordVisibility = field => {
-    if (field === 'password') {
-      setPasswordVisible(!passwordVisible);
-    } else if (field === 'confirmPassword') {
-      setConfirmPasswordVisible(!confirmPasswordVisible);
-    }
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(prev => !prev);
   };
+
+  const handleSignInPress = () => {
+    navigation.navigate('SignUp');
+  };
+
+  useEffect(() => {
+    const loadPreviousCredentials = async () => {
+      try {
+        const savedUsername = await AsyncStorage.getItem('username');
+        const savedPassword = await AsyncStorage.getItem('password');
+
+        if (savedUsername) {
+          setUserName(savedUsername);
+        }
+        if (savedPassword) {
+          setPassword(savedPassword);
+        }
+      } catch (error) {
+        console.log('Error loading previous credentials:', error);
+      }
+    };
+
+    loadPreviousCredentials();
+  }, []);
+
+  useEffect(() => {
+    const newIsSignInDisabled =
+      !username.trim() || !password.trim() || usernameError || passwordError;
+    setIsSignInDisabled(newIsSignInDisabled);
+  }, [username, password, usernameError, passwordError]);
+
   return (
     <View style={styles.mainContainer}>
       <KeyboardAwareScrollView contentContainerStyle={styles.container}>
-        <CustomText
-          bold={true}
-          italic={false}
-          style={{color: 'white', fontSize: 25}}>
+        <CustomText bold={true} style={{color: 'white', fontSize: 25}}>
           Welcome back!
         </CustomText>
 
         <View style={styles.inputContainer}>
-          <Text style={[styles.inputText, isFocused && styles.focusedText]}>
+          <Text
+            style={[
+              styles.inputText,
+              isUsernameFocused && styles.focusedText,
+              usernameError && styles.errorText,
+            ]}>
             Email Address
           </Text>
-          <View style={[styles.nameSection, isFocused && styles.focusedBorder]}>
+          <View
+            style={[
+              styles.nameSection,
+              isUsernameFocused && styles.focusedBorder,
+              usernameError && styles.errorBorder,
+            ]}>
             <TextInput
               style={styles.input}
               placeholder="Email Address"
               placeholderTextColor="white"
-              keyboardType="default"
+              keyboardType="email-address"
               underlineColorAndroid="transparent"
-              onChangeText={username => setUserName(username)}
+              onChangeText={handleUsernameChange}
               value={username}
-              onFocus={() => setIsFocused(true)} // Set isFocused to true on focus
-              onBlur={() => setIsFocused(false)} // Set isFocused to false on blur
+              onFocus={() => setIsUsernameFocused(true)}
+              onBlur={() => setIsUsernameFocused(false)}
             />
           </View>
+          {formErrors.username && (
+            <Text style={styles.error}>{formErrors.username}</Text>
+          )}
         </View>
-        {/* Add error message or validation here if needed */}
 
         <Text
-          style={[styles.inputText, isFocusedPassword && styles.focusedText]}>
+          style={[
+            styles.inputText,
+            isPasswordFocused && styles.focusedText,
+            passwordError && styles.errorText,
+          ]}>
           Password
         </Text>
         <View
           style={[
             styles.nameSection,
-            isFocusedPassword && styles.focusedBorder,
+            isPasswordFocused && styles.focusedBorder,
+            passwordError && styles.errorBorder,
           ]}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TextInput
               style={styles.input}
               placeholder="********"
               placeholderTextColor="white"
               secureTextEntry={!passwordVisible}
               underlineColorAndroid="transparent"
-              onChangeText={password => setPassword(password)}
+              onChangeText={handlePasswordChange}
               value={password}
-              onFocus={() => setIsFocusedPassword(true)}
-              onBlur={() => setIsFocusedPassword(false)}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
             />
-            <TouchableOpacity
-              onPress={() => togglePasswordVisibility('password')}>
+            <TouchableOpacity onPress={togglePasswordVisibility}>
               <Image
                 style={{height: 20, width: 20, tintColor: '#A7A6A6'}}
                 source={
@@ -111,39 +231,54 @@ const SignIn = () => {
             </TouchableOpacity>
           </View>
         </View>
-        {/* Text component to display error */}
-        <TouchableOpacity
-          onPress={handleForgotPasswordPress}
-          activeOpacity={1}
-          style={{flex: 1, alignItems: 'flex-end', paddingTop: 10}}>
-          <Text style={styles.signInText}>Forgot Password? </Text>
-        </TouchableOpacity>
-        <View style={styles.bottomContainer}>
-          <BottomComponent title="Sign In" onPress={handlePress} />
+        {formErrors.password && (
+          <Text style={styles.error}>{formErrors.password}</Text>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={handleForgotPasswordPress}
+            style={styles.forgotPasswordButton}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.bottomContainer}>
+          <BottomComponent
+            title={loading ? 'Signing In...' : 'Sign In'}
+            onPress={handlePress}
+            disabled={isSignInDisabled}
+            faded={isSignInDisabled}
+            activityIndicator={true}
+            loading={loading}
+          />
+        </View>
+
         <View style={styles.divider}>
           <View style={styles.underline} />
           <Text style={styles.orText}>Or</Text>
           <View style={styles.underline} />
         </View>
+
+        {/* Additional social sign-in buttons */}
         <View style={styles.bottomContainer}>
           <BottomComponent
             title="Continue with Google"
-            // onPress={handlePress}
             backgroundColor="#222222"
             icon={require('../../assets/icons/appleIcon.png')}
             iconSize={24}
           />
         </View>
+
         <View style={styles.bottomContainer}>
           <BottomComponent
             title="Continue with Apple ID"
-            // onPress={handlePress}
             backgroundColor="#222222"
             icon={require('../../assets/icons/googleIcon.png')}
             iconSize={24}
           />
         </View>
+
         <View style={styles.bottom}>
           <TouchableOpacity onPress={handleSignInPress} activeOpacity={1}>
             <Text style={styles.optionText}>
@@ -157,8 +292,6 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
-
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -169,10 +302,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginTop: 30,
   },
-  inputLabel: {
-    color: 'white',
-    marginBottom: 5,
-  },
   input: {
     width: '100%',
     height: 40,
@@ -180,6 +309,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Karla-SemiBold',
     paddingHorizontal: 20,
     fontSize: 16,
+  },
+  inputText: {
+    fontSize: 15,
+    color: '#ffffff',
+    paddingTop: 12,
+    paddingBottom: 12,
+    fontFamily: 'Karla-ExtraBold',
+  },
+  errorBorder: {
+    borderColor: 'red',
+  },
+  errorText: {
+    color: 'red',
   },
   error: {
     color: 'red',
@@ -197,16 +339,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#171717',
   },
-  inputText: {
-    fontSize: 15,
-    color: '#ffffff',
-    paddingTop: 12,
-    paddingBottom: 12,
-    fontFamily: 'Karla-ExtraBold',
-  },
   bottomContainer: {
     marginTop: 30,
-    // bottom: 60,
   },
   divider: {
     flexDirection: 'row',
@@ -242,9 +376,35 @@ const styles = StyleSheet.create({
     color: '#28CC9E',
   },
   bottom: {
-    bottom: -230,
+    bottom: -200,
     position: 'absolute',
     left: 0,
     right: 0,
   },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  loadingText: {
+    color: '#28CC9E',
+    marginLeft: 10,
+  },
+  forgotPasswordButton: {
+    paddingHorizontal: 10,
+    alignItems: 'flex-end',
+  },
+  forgotPasswordText: {
+    color: '#28CC9E',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+    fontFamily: 'Karla-Bold',
+  },
+  buttonContainer: {
+    marginTop: 10,
+    alignItems: 'flex-end',
+  },
 });
+
+export default SignIn;

@@ -18,7 +18,7 @@ const Progress = () => {
         }}
         theme={calendarTheme}
       />
-      {/* <Agenda
+      <Agenda
         style={styles.agenda}
         theme={agendaTheme}
         items={{
@@ -34,7 +34,7 @@ const Progress = () => {
           '2024-04-4': [{name: 'Meeting with Client', time: '10:00 AM'}],
           '2024-04-5': [{name: 'Gym Session', time: '05:00 PM'}],
         }}
-      /> */}
+      />
     </View>
   );
 };

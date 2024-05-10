@@ -13,7 +13,7 @@ import React, {useContext, useState} from 'react';
 import {TabView, TabBar, SceneMap} from 'react-native-tab-view';
 import BottomComponent from '../../components/bottom';
 import Card from '../../components/card';
-import {AuthContext} from '../../context/authContext';
+// import {AuthContext} from '../../context/authContext';
 
 const FirstRoute = () => (
   <View style={{flex: 1}}>
@@ -94,7 +94,7 @@ const FirstRoute = () => (
 );
 
 const SecondRoute = () => {
-  const {logOut} = useContext(AuthContext);
+  // const {logOut} = useContext(AuthContext);
 
   return (
     <View style={{flex: 1}}>
@@ -157,7 +157,7 @@ const SecondRoute = () => {
             }}>
             <TouchableOpacity
               onPress={() => {
-                logOut();
+                // logOut();
               }}
               style={{
                 height: 93,

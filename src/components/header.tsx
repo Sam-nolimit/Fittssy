@@ -1,42 +1,46 @@
-import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {View, StyleSheet, TouchableOpacity, Text, Image} from 'react-native';
+import {StyleSheet, TouchableOpacity, Text, Image} from 'react-native';
+import Animated, {SharedValue} from 'react-native-reanimated'; // Import SharedValue
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 interface HeaderProps {
   title: string;
   showOption?: boolean; // Optional prop to determine whether to show the second TouchableOpacity
+  active: SharedValue<boolean>; // Use SharedValue type
 }
 
-const Header: React.FC<HeaderProps> = ({title, showOption = false}) => {
-  const Icon = require('../assets/icons/right.png');
-  const navigation = useNavigation();
+const Header: React.FC<HeaderProps> = ({title, showOption = false, active}) => {
+  // Correct typo here
+  const Icon = require('../assets/icons/menu-burger.png');
 
   const goBack = () => {
-    navigation.goBack();
+    active.value = true;
+    console.log('HEADER MENU PRESSED!!!!!!!!!!!!', active.value);
   };
+  const inset = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={goBack} style={styles.circle}>
+    <Animated.View style={[styles.header, {paddingTop: inset.top}]}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={goBack}
+        style={styles.circle}>
         <Image source={Icon} style={styles.icon} />
       </TouchableOpacity>
-      <Text style={styles.title}>{title}</Text>
-      {showOption && ( // Conditionally render the second TouchableOpacity
+      {/* <Text style={styles.title}>{title}</Text>
+      {showOption && (
         <TouchableOpacity onPress={goBack} style={styles.option}>
           <Text style={styles.optionText}>{title}</Text>
         </TouchableOpacity>
-      )}
-    </View>
+      )} */}
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 12,
-    paddingBottom: 15,
+    backgroundColor: '#28CC9E',
+    padding: 20,
   },
   circle: {
     width: 46,
@@ -48,8 +52,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   icon: {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
   },
   title: {
     fontSize: 16,
