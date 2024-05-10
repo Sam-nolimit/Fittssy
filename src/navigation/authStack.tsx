@@ -7,7 +7,6 @@ import SignUp from '../../src/screens/onboarding/signUp';
 import SignIn from '../../src/screens/onboarding/signIn';
 import ForgotPassword from '../../src/screens/onboarding/forgotPassword';
 import Verification from '../../src/screens/onboarding/verication';
-import Dashboard from '../screens/dashboard/startWorkout';
 
 const Stack = createNativeStackNavigator();
 const AuthStack = () => {
@@ -38,11 +37,6 @@ const AuthStack = () => {
         component={Verification}
         options={{headerShown: false}}
       />
-      {/* <Stack.Screen
-        name="Dashboard"
-        component={Dashboard}
-        options={{headerShown: false}}
-      /> */}
     </Stack.Navigator>
   );
 };

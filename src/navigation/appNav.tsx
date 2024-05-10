@@ -5,6 +5,7 @@ import {AuthContext} from '../context/authContext';
 import {ActivityIndicator, View} from 'react-native';
 import AppStack from './appStack';
 import AuthStack from './authStack';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const AppNav = () => {
   const {isLoading, userToken} = useContext(AuthContext);
@@ -17,9 +18,11 @@ const AppNav = () => {
   }
 
   return (
-    <NavigationContainer>
-      {userToken !== null ? <AppStack /> : <AuthStack />}
-    </NavigationContainer>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <NavigationContainer>
+        {userToken !== null ? <AppStack /> : <AuthStack />}
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 };
 

@@ -21,10 +21,35 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const navigation = useNavigation();
 
   const handlePress = () => {
+    // Reset previous errors
+    setUsernameError('');
+    setPasswordError('');
+    setConfirmPasswordError('');
+
+    // Validation logic
+    if (!username) {
+      setUsernameError('Email Address is required');
+    }
+    if (!password) {
+      setPasswordError('Password is required');
+    }
+    if (!confirmPassword) {
+      setConfirmPasswordError('Confirm Password is required');
+    }
+
+    // Check if any errors exist
+    if (!username || !password || !confirmPassword) {
+      return; // Stop further execution if there are errors
+    }
+
+    // If all fields are valid, proceed to navigation
     navigation.navigate('Dashboard');
   };
 
@@ -62,19 +87,26 @@ const SignUp = () => {
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputText}>Email Address</Text>
-          <View style={styles.nameSection}>
+          <View
+            style={[
+              styles.nameSection,
+              {borderColor: usernameError ? 'red' : '#292929'},
+            ]}>
             <TextInput
               style={styles.input}
               placeholder="Email Address"
               placeholderTextColor="white"
-              keyboardType="default"
-              underlineColorAndroid="transparent"
-              onChangeText={username => setUserName(username)}
+              keyboardType="email-address"
+              onChangeText={text => setUsername(text)}
               value={username}
             />
           </View>
+          {usernameError ? (
+            <Text style={styles.error}>{usernameError}</Text>
+          ) : null}
         </View>
-        {/* Add error message or validation here if needed */}
+
+        {/* Repeat similar pattern for Password and Confirm Password */}
 
         <Text style={styles.inputText}>Password</Text>
         <View style={styles.nameSection}>
@@ -159,7 +191,7 @@ const SignUp = () => {
           <TouchableOpacity onPress={handleSignInPress} activeOpacity={1}>
             <Text style={styles.optionText}>
               Already have an account?
-              <Text style={styles.signInText}>Sign in</Text>
+              <Text style={styles.signInText}> Sign in</Text>
             </Text>
           </TouchableOpacity>
         </View>

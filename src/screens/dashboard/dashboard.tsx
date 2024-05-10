@@ -4,6 +4,7 @@ import {
   Dimensions,
   Image,
   ImageBackground,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -16,6 +17,14 @@ import MyPlans from './myPlans';
 import Progress from './progress';
 import Insight from './insight';
 import Profile from './profile';
+import Header from '../../components/header';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import Overlay from '../../components/overlay';
+import {Home} from './home';
 
 const Tab = createBottomTabNavigator();
 
@@ -30,7 +39,7 @@ const InsightIcon2 = require('../../assets/icons/insight.png');
 const profileIcon = require('../../assets/icons/profile.png');
 const profileIcon2 = require('../../assets/icons/profile.png');
 
-export default function MyTabs() {
+export default function MainDasboard() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -63,21 +72,23 @@ export default function MyTabs() {
             </View>
           );
         },
-        headerShown: '',
+        headerShown: false,
         tabBarLabel: '',
         tabBarStyle: {
-          paddingTop: 30,
-          backgroundColor: '#30303040',
+          paddingTop: 34,
+          backgroundColor: '#1a030324',
           position: 'absolute',
           left: 20,
           right: 20,
-          bottom: 20,
+          // bottom: 5,
           borderRadius: 20,
           borderTopWidth: 0,
-          paddingHorizontal: 2,
+          // paddingHorizontal: 2,
+          // borderColor: 'black',
+          marginBottom: 13,
         },
       })}>
-      <Tab.Screen name="Home" component={Dashboard} />
+      <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="My Plans" component={MyPlans} />
       <Tab.Screen name="Progress" component={Progress} />
       <Tab.Screen name="Insight" component={Insight} />
@@ -86,74 +97,15 @@ export default function MyTabs() {
   );
 }
 
-const Dashboard = () => {
-  return (
-    <>
-      <ImageBackground
-        style={styles.imageBackground}
-        resizeMode="center"
-        source={require('../../assets/media/Home/backgroundMain.png')}>
-        <StatusBar translucent={false} barStyle="light-content" />
-        <KeyboardAwareScrollView contentContainerStyle={styles.mainContainer}>
-          {/* <Header /> */}
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 40,
-            }}>
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 35,
-                fontFamily: 'Karla-ExtraBold',
-              }}>
-              Go!
-            </Text>
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 24,
-                fontFamily: 'Karla-Regular',
-              }}>
-              Est. 1h 9 min!
-            </Text>
-            <View>
-              <Image
-                source={require('../../assets/media/Home/primaryBackground.png')}
-                resizeMode="contain"
-                style={styles.image}
-              />
-            </View>
-          </View>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginHorizontal: 10,
-              marginBottom: 30,
-            }}>
-            <Text
-              style={{
-                color: 'gray',
-                fontSize: 22,
-                fontFamily: 'Karla-SemiBold',
-              }}>
-              Workout log is empty
-            </Text>
-          </View>
-        </KeyboardAwareScrollView>
-      </ImageBackground>
-    </>
-  );
-};
-
 const styles = StyleSheet.create({
+  animatedView: {
+    overflow: 'hidden', // Ensure overflow is hidden when using border radius
+  },
   mainContainer: {
-    flex: 1,
     // backgroundColor: '#060404',
-    paddingTop: 80,
-    paddingHorizontal: 20,
+    // paddingTop: 80,
+    // paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   imageBackground: {
     width: '100%',
