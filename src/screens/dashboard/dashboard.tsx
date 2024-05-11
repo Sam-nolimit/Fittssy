@@ -1,29 +1,12 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-native/no-inline-styles */
-import {
-  Dimensions,
-  Image,
-  ImageBackground,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {Dimensions, Image, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MyPlans from './myPlans';
 import Progress from './progress';
 import Insight from './insight';
 import Profile from './profile';
-import Header from '../../components/header';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import Overlay from '../../components/overlay';
 import {Home} from './home';
 
 const Tab = createBottomTabNavigator();
@@ -76,15 +59,13 @@ export default function MainDasboard() {
         tabBarLabel: '',
         tabBarStyle: {
           paddingTop: 34,
-          backgroundColor: '#1a030324',
+          backgroundColor: '#1a1818',
           position: 'absolute',
           left: 20,
           right: 20,
-          // bottom: 5,
           borderRadius: 20,
           borderTopWidth: 0,
-          // paddingHorizontal: 2,
-          // borderColor: 'black',
+          borderColor: 'red',
           marginBottom: 13,
         },
       })}>
@@ -98,15 +79,6 @@ export default function MainDasboard() {
 }
 
 const styles = StyleSheet.create({
-  animatedView: {
-    overflow: 'hidden', // Ensure overflow is hidden when using border radius
-  },
-  mainContainer: {
-    // backgroundColor: '#060404',
-    // paddingTop: 80,
-    // paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
   imageBackground: {
     width: '100%',
     height: Dimensions.get('screen').height,
