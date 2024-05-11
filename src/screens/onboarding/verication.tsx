@@ -1,28 +1,47 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   StyleSheet,
   TouchableOpacity,
   Text,
   TextInput,
-  ActivityIndicator,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import BottomComponent from '../../components/bottom';
-import Header from '../../components/header';
 import {useNavigation} from '@react-navigation/native';
+import Header from '../../components/headerGoback';
 
 const Verification = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isFocused, setIsFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [expired, setExpired] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(20);
+  const [resendPressed, setResendPressed] = useState(false);
   const navigation = useNavigation();
+  const inputRefs = useRef([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemainingTime(prevTime => {
+        if (prevTime === 0) {
+          clearInterval(interval);
+          setExpired(true);
+          setLoading(false); // Stop loading if it's still in progress
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handlePress = () => {
     // Simulate loading for 2 seconds
-    setIsLoading(true);
+    setLoading(true);
     setTimeout(() => {
-      setIsLoading(false);
+      setLoading(false);
       // Perform verification logic here
       navigation.navigate('Dashboard');
     }, 2000);
@@ -32,6 +51,17 @@ const Verification = () => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
+    if (value.length === 0 && index > 0) {
+      inputRefs.current[index - 1].focus();
+    } else if (value.length === 1 && index < otp.length - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleResend = () => {
+    setResendPressed(true);
+    // Logic for resending PIN code can be added here
   };
 
   return (
@@ -55,21 +85,36 @@ const Verification = () => {
               maxLength={1}
               keyboardType="numeric"
               autoFocus={index === 0}
+              ref={ref => (inputRefs.current[index] = ref)}
             />
           ))}
         </View>
-
+        <Text style={styles.timerText}>
+          {expired
+            ? 'Verification expired.'
+            : `Time remaining: ${Math.floor(remainingTime / 60)}:${
+                remainingTime % 60
+              }`}
+        </Text>
         <View style={styles.bottomContainer}>
           <BottomComponent
-            title="Verify"
+            title={loading ? 'Verifying' : 'Verify'}
             onPress={handlePress}
-            isLoading={isLoading}
+            loading={loading}
           />
-
-          <TouchableOpacity onPress={() => {}} style={styles.resendContainer}>
+        </View>
+        {expired && resendPressed ? (
+          <View style={styles.resendContainer}>
+            <Text style={styles.resendText}>Resending...</Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={handleResend}
+            style={styles.resendContainer}>
             <Text style={styles.resendText}>Resend PIN code</Text>
           </TouchableOpacity>
-        </View>
+        )}
+
       </KeyboardAwareScrollView>
     </View>
   );
@@ -84,7 +129,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    // justifyContent: 'center',
   },
   title: {
     color: 'white',
@@ -129,6 +173,12 @@ const styles = StyleSheet.create({
   focusedText: {
     borderColor: '#28CC9E',
     borderWidth: 1,
+  },
+  timerText: {
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 20,
+    fontFamily: 'Karla-Bold',
   },
 });
 

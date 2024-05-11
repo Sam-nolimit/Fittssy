@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-native/no-inline-styles */
 import {
   Dimensions,
@@ -23,6 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Overlay from '../../components/overlay';
 import Drawer from '../../components/drawer';
+import AtmCard from '../../components/atmCard';
 
 export const Home = () => {
   const active = useSharedValue(false);
@@ -112,6 +112,7 @@ export const Home = () => {
                 Workout log is empty
               </Text>
             </View>
+            <AtmCard />
           </ScrollView>
           <Overlay active={active} />
         </ImageBackground>
@@ -122,12 +123,11 @@ export const Home = () => {
 
 const styles = StyleSheet.create({
   animatedView: {
-    overflow: 'hidden', // Ensure overflow is hidden when using border radius
+    overflow: 'hidden',
   },
   mainContainer: {
-    // backgroundColor: '#060404',
-    // paddingTop: 80,
-    // paddingHorizontal: 20,
+    backgroundColor: '#06040415',
+    paddingTop: 10,
     paddingBottom: 40,
   },
   imageBackground: {

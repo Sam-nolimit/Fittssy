@@ -10,27 +10,28 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import CustomText from '../../components/text';
 import {useNavigation} from '@react-navigation/native';
 import BottomComponent from '../../components/bottom';
-import Header from '../../components/header';
+import Header from '../../components/headerGoback';
+// import Header from '../../components/header';
 
 const ForgotPassword = () => {
   const [username, setUserName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // State for loading indicator
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
 
   const handlePress = () => {
     // Simulate loading for 2 seconds
-    setIsLoading(true);
+    setLoading(true);
     setTimeout(() => {
-      setIsLoading(false);
+      setLoading(false);
       navigation.navigate('Verification');
     }, 2000);
   };
-
+// 123456
   return (
     <View style={styles.mainContainer}>
       <KeyboardAwareScrollView contentContainerStyle={styles.container}>
-        <Header />
+        <Header option="use code" title="   " showOption="true" />
         <CustomText
           bold={true}
           italic={false}
@@ -65,11 +66,10 @@ const ForgotPassword = () => {
 
         <View style={styles.bottomContainer}>
           <BottomComponent
-            title="Send"
+            title={loading ? 'Sending' : 'Send'}
             onPress={handlePress}
-            isLoading={isLoading}>
-            {isLoading && <ActivityIndicator color="#ffffff" />}{' '}
-          </BottomComponent>
+            loading={loading}
+          />
         </View>
       </KeyboardAwareScrollView>
     </View>
